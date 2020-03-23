@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="bg-light">
+<head th:include="layout :: htmlhead" th:with="title='Room Details'"></head>
+<body>
+<div th:replace="layout :: navbar">(navbar)</div>
+
+<table class="table table-sm">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">Room</th>
+        <th scope="col">08:00</th>
+        <th scope="col">08:30</th>
+        <th scope="col">09:00</th>
+        <th scope="col">09:30</th>
+        <th scope="col">10:00</th>
+        <th scope="col">10:30</th>
+        <th scope="col">11:00</th>
+        <th scope="col">11:30</th>
+        <th scope="col">12:00</th>
+        <th scope="col">12:30</th>
+        <th scope="col">13:00</th>
+        <th scope="col">13:30</th>
+        <th scope="col">14:00</th>
+        <th scope="col">14:30</th>
+        <th scope="col">15:00</th>
+        <th scope="col">15:30</th>
+        <th scope="col">16:00</th>
+        <th scope="col">16:30</th>
+        <th scope="col">17:00</th>
+        <th scope="col">17:30</th>
+    </tr>
+    </thead>
+</table>
+
+<div class="progress" style="height: 3px; width: 100%; padding-left: 5%">
+    <div class="progress-bar" role="progressbar" id="timeline" style="" aria-valuenow="8:00am" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+
+<div id="vline"></div>
+
+<table class="table bg-light table-sm" style="width: 100%; table-layout: fixed!important; text-overflow: ellipsis!important;">
+    <tbody style="width:100%">
+
+    <th scope="row" style="width:5%">
+        <div class="text-truncate" th:text="${room.name}"></div>
+    </th>
+
+    <th style="width: 95%">
+        <button th:each="slot : ${room.slots}"
+                th:style="'width:' + ${slot.width*0.1666666667} + '%;border: 0; float: left;'"
+                type="button"
+                th:classappend="(${slot.available} ?
+                                    'btn-outline-success btn-sm' : (${slot.movement} ?
+                                    'btn-warning btn-sm' : 'btn-danger btn-sm'))"
+                data-toggle="modal"
+                th:attr="data-target=${slot.available} ? '#eventFreeModal' : '#eventBookedModal',
+                         data-start=${slot.startTime},
+                         data-end=${slot.endTime},
+                         data-info=${slot.eventName},
+                         data-id=${room.id}">
+        </button>
+    </th>
+
+    </tbody>
+</table>
+
+<div class="row" style="padding-left: 20%; padding-right: 10%; width: 99%">
+    <div class="col order-1" style="padding-right: 10%">
+        <div class="card" style="width: 100%; border: none">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Room</h5>
+                <p class="card-text display-2" th:text="${room.name}"></p>
+            </div>
+        </div>
+    </div>
+    <div class="col order-2" style="padding-right: 5%">
+        <div class="card" style="width: 100%; border: none;">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Capacity</h5>
+                <p class="card-text display-2" th:text="${room.capacity}">4</p>
+            </div>
+        </div>
+    </div>
+    <div class="col order-3">
+        <div class="card" style="width: 110%; border: none">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Equipment</h5>
+                <p class="card-text lead" th:each="equipmentItem : ${room.equipment}" th:text="'- ' + ${equipmentItem}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal for making a booking -->
+<div id="eventFreeModal" class="modal fade" style="z-index: 1000001;" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="mySmallModalLabel">Book Event</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form role="form" id="myForm" method="post">
+                    <div class="form-group">
+                        <label for="eventName" class="col-form-label-sm">Event name</label>
+                        <input type="text" class="form-control form-control-sm" style="border-top: 0px; border-left: 0px; border-right: 0px"
+                               id="eventName" name="eventName" placeholder="Add title"/>
+                    </div>
+                    <div class="form-row justify-content-around">
+                        <div class="form-group">
+                            <label for="startDate" class="col-form-label-sm">From</label>
+                            <input type="datetime-local" class="form-control form-control-sm" style="border: 0px"
+                                   id="startDate" name="startDate" placeholder="dd/mm/yyyy hh:mm"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate" class="col-form-label-sm">To</label>
+                            <input type="datetime-local" class="form-control form-control-sm" style="border: 0px"
+                                   id="endDate" name="endDate" placeholder="dd/mm/yyyy hh:mm"/>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label for="creatorEmail" class="col-form-label-sm">Your email address</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control form-control-sm" placeholder="Your email" aria-label="Your email"
+                                   aria-describedby="basic-addon" id="creatorEmail" name="creatorEmail"/>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon">@johnlewis.co.uk</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="roomId" name="roomId"/>
+
+                    <button type="submit" class="btn btn-default" id="myFormSubmit" data-dismiss="modal">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for booked slot -->
+<div id="eventBookedModal" class="modal fade" style="z-index: 1000001;" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Event Information</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control" id="eventNameBooked" th:readonly="readonly" placeholder="Information goes here"/>
+                <fieldset disabled="disabled">
+                    <div class="form-row justify-content-around">
+                        <div class="form-group">
+                            <label for="startDate" class="col-form-label-sm">Booked from: </label>
+                            <input type="datetime-local" class="form-control form-control-sm" style="border: 0px"
+                                   id="startDateBooked" placeholder="dd/mm/yyyy hh:mm"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate" class="col-form-label-sm">to: </label>
+                            <input type="datetime-local" class="form-control form-control-sm" style="border: 0px"
+                                   id="endDateBooked" placeholder="dd/mm/yyyy hh:mm"/>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    //give your timeline an ID, e.g. timeline
+    var timeline = document.getElementById("timeline");
+
+    function timelinePc() //gets current date and time
+    {
+        var currentTime = new Date();
+
+        //parse current datetime object and convert the time parts into seconds
+        var seconds = (currentTime.getHours() * 3600) + (currentTime.getMinutes() * 60) + currentTime.getSeconds();
+
+        //set your maximum and minimum times in seconds on your timeline here
+        var widthPc = ((seconds - 28800) / (64800 - 28800)) * 100;
+
+        //check if the calculated width value is below or above timeline limits
+        if (widthPc > 100) {
+            widthPc = 100;
+        }
+        else if (widthPc < 0) {
+            widthPc = 0;
+        }
+
+        //ensures IE doesn't center timeline by default
+        var marginRight = 100 - widthPc;
+
+        var stringHours;
+        var stringMinutes;
+
+        if (currentTime.getHours() < 10) {
+            stringHours = "0" + currentTime.getHours();
+        }
+        else {
+            stringHours = currentTime.getHours();
+        }
+
+        if (currentTime.getMinutes() < 10) {
+            stringMinutes = "0" + currentTime.getMinutes();
+        }
+        else {
+            stringMinutes = currentTime.getMinutes();
+        }
+
+        //applies width value to timeline on page load
+        timeline.setAttribute("style", "width: " + widthPc + "%; margin-right: " + marginRight + "%");
+    }
+
+    timelinePc();
+
+    //takes the above code and executes it every 2 seconds for real time updating
+    setInterval(timelinePc, 2000);
+    /*]]>*/
+</script>
+
+<script>
+    $('#eventFreeModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var m = moment().format("YYYY-MM-DD");
+        var startTime = m + "T" + button.data('start').substr(1, 8) + ".000"; // Extract info from data-* attributes
+        var endTime = m + "T" + button.data('end').substr(1, 8) + ".000"; // Extract info from data-* attributes
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this)
+        modal.find('#startDate').val(startTime);
+        modal.find('#endDate').val(endTime);
+    })
+</script>
+
+<script>
+    $('#eventBookedModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var m = moment().format("YYYY-MM-DD");
+        var startTime = m + "T" + button.data('start').substr(1, 8) + ".000"; // Extract info from data-* attributes
+        var endTime = m + "T" + button.data('end').substr(1, 8) + ".000"; // Extract info from data-* attributes
+        var eventName = button.data('info');
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this)
+        modal.find('#startDateBooked').val(startTime);
+        modal.find('#endDateBooked').val(endTime);
+        modal.find('#eventNameBooked').val(eventName);
+    })
+</script>
+
+<script>
+    $.ajaxSetup({
+        contentType: "application/json; charset=utf-8"
+    });
+
+    $('#myFormSubmit').click(
+        function (event) {
+            event.preventDefault();
+            $.post('/book', JSON.stringify(getFormData($('#myForm').serializeArray())))
+                .done(function () {
+                    location.reload()
+                })
+        }
+    );
+
+    function getFormData(data) {
+        var unindexed_array = data;
+        var indexed_array = {};
+
+        $.map(unindexed_array, function (n, i) {
+            indexed_array[n['name']] = n['value'];
+        });
+
+        return indexed_array;
+    }
+</script>
+
+<script>
+    var vline= $('#vline');
+
+    function vlinePosition(){
+
+        var currentTime = new Date();
+
+        //parse current datetime object and convert the time parts into seconds
+        var seconds = (currentTime.getHours() * 3600) + (currentTime.getMinutes() * 60) + currentTime.getSeconds();
+
+        //set your maximum and minimum times in seconds on your timeline here
+        var widthPc = (((seconds - 27000) / (64800 - 27000)) * 100);
+
+        vline.css("left", widthPc + "%");
+        vline.css("height", "7%")
+    }
+    setInterval(vlinePosition(), 2000);
+
+
+</script>
+
+</html>
